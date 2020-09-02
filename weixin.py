@@ -21,8 +21,8 @@ class Wechat(object):
         return a.text
 
     # 找出对应名字的文章链接和标题
-    def get_article(self,html):
-        q = pq(html)
+    def get_article(self):
+        q = pq(self.get_page())
         lists = q('.news-list li').items()
         for list in lists:
             if list('.s-p a').text() == self.name:
@@ -33,5 +33,5 @@ class Wechat(object):
 
 
 h = Wechat('Victory九幽')
-c = h.get_page()
-h.get_article(c)
+
+h.get_article()
