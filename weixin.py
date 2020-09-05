@@ -14,30 +14,34 @@ class Wechat(object):
     def get_page(self,page):
         s = quote(self.name)
         headers = {
-            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3775.400 QQBrowser/10.6.4208.400',
+            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36',
         }
         url = 'https://weixin.sogou.com/weixin?type=2&page={}&s_from=input&query={}&ie=utf8&_sug_=n&_sug_type_='.format(page,s)
         a = requests.get(url,headers=headers)
 
         return a.text
 
-    # 找出对应公众号的文章链接和标题，因为搜狗微信只显示前10页，所以我们也只抓取前10页
+    # 找出对应公众号的文章链接和标题，因为搜狗微信只显示前10页，所以我们也只抓取前10页，找出两天类的文章并输出
     def get_article(self):
         for i in range(1,11):
             q = pq(self.get_page(i))
             lists = q('.news-list li').items()
             for list in lists:
                 if list('.s-p a').text() == self.name:
-                    d = list('.txt-box h3 a ').text() #获取文章标题
-                    s = 'https://weixin.sogou.com' + list('.txt-box h3 a ').attr('href') #获取文章链接
-                    # 显示该文章的时间戳
+
+                    # 获取文章的时间戳
                     t = list('.s-p').attr('t')
+                    # 这里是计算当前的时间戳
                     shijian = int(time.time())
-                    print(t,shijian)
-                    if (shijian - int(t)) < 10368000:
-                        print(d,s)
+                    # 这里是将两天内的文章搜索出来,并返回
+
+                    if (shijian - int(t)) < 172800:
+                        d = list('.txt-box h3 a ').text()  # 获取文章标题
+                        s = 'https://weixin.sogou.com' + list('.txt-box h3 a ').attr('href')  # 获取文章链接
+                        print('%s%s'%(d,s))
 
 
+    # 上面函数已经拿到文章的名字和文章链接，现在来进行文章内容分析，
 
 
 
