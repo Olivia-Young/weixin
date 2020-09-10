@@ -6,6 +6,8 @@ import requests
 from urllib.parse import quote
 from pyquery import PyQuery as pq
 import time
+from docx import Document
+
 
 class Wechat(object):
     def __init__(self,name):
@@ -42,21 +44,30 @@ class Wechat(object):
                         return title,url
 
 
-    # 上面函数已经拿到文章的名字和文章链接，现在来进行文章内容分析，
-    def get_content(self):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36',
-        }
-        [title,url] = self.get_article()
-        html = requests.get(url,headers=headers)
-        h = pq(html)
+    # 上面函数已经拿到文章的名字和文章链接，现在来进行文章内容分析，（这块代码放弃了，因为公众号正文是反爬的加入cookie和selenium都会被劫住，所以暂时不搞这一块）
+    # def get_content(self,title,url):
+    #     brower = webdriver.Chrome()
+    #
+    #     time.sleep(2)
+    #     print(url)
+    #     brower.get(url)
+    #     html = brower.page_source
+    #     h = pq(html)
+    #     print(h)
+    #
+    #     # lists = h('.rich_media_content p').items()
+    #     # for list in lists:
+    #     #
+    #     #     print(list.text())
 
-        lists = h('.rich_media_content p').items()
-        for list in lists:
 
-            print(list.text())
+    # 下面我们将爬到的文章名字和链接保存在word文档中
+    def input_title(self):
+        s = self.get_article()
 
-
+        document = Document()
+        paragraph = document.add_paragraph(s)
+        document.save('weixin.docx')
 
 
 
@@ -65,7 +76,5 @@ class Wechat(object):
 
 h = Wechat('西安腾乐电子')
 
-a = h.get_article()
-print(a)
-h.get_content()
+h.input_title()
 
