@@ -8,14 +8,19 @@ from pyquery import PyQuery as pq
 import time
 from docx import Document
 from datetime import datetime
+import random
 
+header = [
+    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3775.400 QQBrowser',
 
+]
 
 #  该函数获取结果页面内容
 def get_page(page,name):
     s = quote(name)
     headers = {
-            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36',
+            'User-Agent':random.choice(header),
         }
     url = 'https://weixin.sogou.com/weixin?type=2&page={}&s_from=input&query={}&ie=utf8&_sug_=n&_sug_type_='.format(page,s)
     a = requests.get(url,headers=headers)
@@ -39,7 +44,13 @@ def get_article(name):
 
                 if (shijian - int(t)) < 172800:
                     title = list('.txt-box h3 a ').text()  # 获取文章标题
+                    if title == '':
+                        title = '无最新报价'
                     url = 'https://weixin.sogou.com' + list('.txt-box h3 a ').attr('href')  # 获取文章链接
+                    if url == '':
+                        url = ''
+
+                    print(title,url)
                     return title,url
 
 
@@ -61,26 +72,24 @@ def get_article(name):
 
 
 # 这里我们建立一个函数完成所有的文章标题链接写入到word文档中
-lists = '西安腾乐电子'
+lists = ['西安腾乐电子','西安新志电子']
 def execute():
     # 创建一个空文档
     document = Document()
     #给文档添加一个标题,后面加上时间
-    header = '公众号最新报价单({})'.format(datetime.now().strftime('%a,%b%d%H:%M'))
+    header = '公众号最新报价单({})'.format(datetime.now().strftime('%a,%b-%d %H:%M'))
     document.add_heading(header,level=0)
-    # for list in lists:
+    for list in lists:
+        print(list)
+        time.sleep(3)
+        title,url = get_article(list)
+        if title == '':
+            continue
+        document.add_paragraph(title,style='List Number')
+        document.add_paragraph('链接：' + url + '\n')
+        document.add_paragraph('来自：' + list)
 
-
-    title,url = get_article(lists)
-    print(title,url)
-
-    # if title == '':
-    #      continue
-    document.add_paragraph(title,style='List Number')
-    document.add_paragraph('链接：' + url + '\n')
-    # document.add_paragraph('来自：' + list)
-
-    document.save('{}.docx'.format(header))
+    document.save('最新报价.docx')
 
 
 
